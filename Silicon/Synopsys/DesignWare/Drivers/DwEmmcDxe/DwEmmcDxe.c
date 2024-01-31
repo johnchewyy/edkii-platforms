@@ -573,7 +573,7 @@ DwEmmcWaitDmaComplete (
   IN UINT32 Read
   )
 {
-  UINT32 Mask, Ctrl, Timeout = 1000000;
+  UINT32 Mask, Ctrl, Timeout = 100000000;
   EFI_STATUS Status = EFI_SUCCESS;
 
   Mask = (Read) ? DWMCI_IDINTEN_RI : DWMCI_IDINTEN_TI;
@@ -649,14 +649,16 @@ DwEmmcReadBlockData (
   Count = (Length + DWEMMC_DMA_BUF_SIZE - 1) / DWEMMC_DMA_BUF_SIZE;
   DescPages = (Count + CountPerPage - 1) / CountPerPage;
 
-  InvalidateDataCacheRange (DmaBuf, Length);
+  gBS->Stall(20000);
+  //InvalidateDataCacheRange (DmaBuf, Length);
 
   Status = PrepareDmaData (gpIdmacDesc, Length, DmaBuf);
   if (EFI_ERROR (Status)) {
     goto out;
   }
 
-  WriteBackDataCacheRange (gpIdmacDesc, DescPages * EFI_PAGE_SIZE);
+  gBS->Stall(20000);
+  //WriteBackDataCacheRange (gpIdmacDesc, DescPages * EFI_PAGE_SIZE);
   StartDma (Length);
 
   Status = SendCommand (mDwEmmcCommand, mDwEmmcArgument);
@@ -702,14 +704,16 @@ DwEmmcWriteBlockData (
   Count = (Length + DWEMMC_DMA_BUF_SIZE - 1) / DWEMMC_DMA_BUF_SIZE;
   DescPages = (Count + CountPerPage - 1) / CountPerPage;
 
-  WriteBackDataCacheRange (DmaBuf, Length);
+  gBS->Stall(20000);
+  //WriteBackDataCacheRange (DmaBuf, Length);
 
   Status = PrepareDmaData (gpIdmacDesc, Length, DmaBuf);
   if (EFI_ERROR (Status)) {
     goto out;
   }
 
-  WriteBackDataCacheRange (gpIdmacDesc, DescPages * EFI_PAGE_SIZE);
+  gBS->Stall(20000);
+  //WriteBackDataCacheRange (gpIdmacDesc, DescPages * EFI_PAGE_SIZE);
   StartDma (Length);
 
   Status = SendCommand (mDwEmmcCommand, mDwEmmcArgument);
